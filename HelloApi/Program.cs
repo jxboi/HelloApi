@@ -6,16 +6,16 @@ using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Override default Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Retrieve database connection password from Azure Key Vault secret
 var client = new SecretClient(new Uri("https://mykeyvalue2023.vault.azure.net/"), new DefaultAzureCredential());
 KeyVaultSecret secretUserId = await client.GetSecretAsync("MyDatabaseDbUserId");
 string dbUserId = secretUserId.Value;
 KeyVaultSecret secretPw = await client.GetSecretAsync("MyDatabaseDbPw");
 string dbPassword = secretPw.Value;
-
-// Add services to the container.
-builder.Services.AddControllers();
-//builder.Services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 
 // Setup DB connection
 var connStringBuilder = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString("MyDatabase"));
@@ -24,12 +24,14 @@ connStringBuilder.InitialCatalog = "MyDatabase";
 connStringBuilder.UserID = dbUserId;
 connStringBuilder.Password = dbPassword;
 
+// Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(opt => opt.UseSqlServer(connStringBuilder.ConnectionString));
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.Logger.LogInformation("Start build");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

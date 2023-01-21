@@ -14,20 +14,22 @@ namespace HelloApi.Controllers
     public class TodoItemsController : ControllerBase
     {
         private readonly TodoContext _context;
+        private readonly ILogger _logger;
 
-        public TodoItemsController(TodoContext context)
+        public TodoItemsController(TodoContext context, ILogger<TodoItem> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/TodoItems
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-          if (_context.TodoItems == null)
-          {
-              return NotFound();
-          }
+            if (_context.TodoItems == null)
+            {
+                return NotFound();
+            }
             return await _context.TodoItems.ToListAsync();
         }
 
@@ -35,14 +37,15 @@ namespace HelloApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
         {
-          if (_context.TodoItems == null)
-          {
-              return NotFound();
-          }
+            if (_context.TodoItems == null)
+            {
+                return NotFound();
+            }
             var todoItem = await _context.TodoItems.FindAsync(id);
 
             if (todoItem == null)
             {
+                _logger.LogInformation("Item {id} not found", id);
                 return NotFound();
             }
 
@@ -85,10 +88,10 @@ namespace HelloApi.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-          if (_context.TodoItems == null)
-          {
-              return Problem("Entity set 'TodoContext.TodoItems'  is null.");
-          }
+            if (_context.TodoItems == null)
+            {
+                return Problem("Entity set 'TodoContext.TodoItems'  is null.");
+            }
             _context.TodoItems.Add(todoItem);
             await _context.SaveChangesAsync();
 
