@@ -4,6 +4,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,18 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(opt => opt.UseSqlServer(connStringBuilder.ConnectionString));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add versioning
+builder.Services.AddApiVersioning(opt =>
+{
+    opt.AssumeDefaultVersionWhenUnspecified = true;
+    opt.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    opt.ReportApiVersions = true;
+    opt.ApiVersionReader = ApiVersionReader.Combine(
+        new QueryStringApiVersionReader("api-version"),
+        new HeaderApiVersionReader("X-Version"),
+        new MediaTypeApiVersionReader("ver"));
+});
 
 // Add Azure Application Insights
 KeyVaultSecret secretAppInsightsConnStr = await client.GetSecretAsync("HelloApiApplicationInsightsConnString");

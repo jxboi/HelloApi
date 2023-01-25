@@ -10,7 +10,9 @@ using HelloApi.Models;
 namespace HelloApi.Controllers
 {
     [Route("api/[controller]")]
+    //[Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class TodoItemsController : ControllerBase
     {
         private readonly TodoContext _context;
@@ -26,6 +28,8 @@ namespace HelloApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
+            _logger.LogInformation("GetTodoItems called 4");
+            _logger.LogWarning("Testing Warning 4");
             if (_context.TodoItems == null)
             {
                 return NotFound();
@@ -45,7 +49,6 @@ namespace HelloApi.Controllers
 
             if (todoItem == null)
             {
-                _logger.LogInformation("Item {id} not found", id);
                 return NotFound();
             }
 
