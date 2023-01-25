@@ -20,19 +20,22 @@ namespace HelloApi.Models
                     {
                         Id = 1,
                         Name = "Make a cup of tea",
-                        IsComplete = true
+                        IsComplete = true,
+                        Prority = 0
                     },
                     new TodoItem
                     {
                         Id = 2,
                         Name = "Tidy your code",
-                        IsComplete = false
+                        IsComplete = false,
+                        Prority = 1
                     },
                     new TodoItem
                     {
                         Id = 3,
                         Name = "Learn something new",
-                        IsComplete = false
+                        IsComplete = false,
+                        Prority = 2
                     }
                 );
         }
