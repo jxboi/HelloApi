@@ -27,6 +27,10 @@ builder.Services.AddDbContext<TodoContext>(opt => opt.UseSqlServer(connStringBui
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add JWT authentication
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+
+
 // Add versioning
 builder.Services.AddApiVersioning(opt =>
 {
