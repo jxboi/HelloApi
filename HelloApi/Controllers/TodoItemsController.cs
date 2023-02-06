@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelloApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HelloApi.Controllers
 {
@@ -13,6 +14,7 @@ namespace HelloApi.Controllers
     //[Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1.0")]
+    [Authorize]
     public class TodoItemsController : ControllerBase
     {
         private readonly TodoContext _context;
@@ -25,6 +27,7 @@ namespace HelloApi.Controllers
         }
 
         // GET: api/TodoItems
+        //[HttpGet, Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
