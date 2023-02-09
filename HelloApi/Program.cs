@@ -5,6 +5,7 @@ using Azure.Security.KeyVault.Secrets;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using HelloApi.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,9 +28,14 @@ builder.Services.AddDbContext<TodoContext>(opt => opt.UseSqlServer(connStringBui
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register repositories
+builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+builder.Services.AddTransient<ITodoRepository, TodoItemRepository>();
+
+
 // Add JWT authentication
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
-
 
 // Add versioning
 builder.Services.AddApiVersioning(opt =>

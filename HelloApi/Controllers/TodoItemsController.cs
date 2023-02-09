@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelloApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using HelloApi.Repository;
 
 namespace HelloApi.Controllers
 {
@@ -19,11 +20,13 @@ namespace HelloApi.Controllers
     {
         private readonly TodoContext _context;
         private readonly ILogger _logger;
+        private readonly ITodoRepository _todoService;
 
-        public TodoItemsController(TodoContext context, ILogger<TodoItem> logger)
+        public TodoItemsController(TodoContext context, ITodoRepository todoService, ILogger<TodoItem> logger)
         {
             _context = context;
             _logger = logger;
+            _todoService = todoService;
         }
 
         // GET: api/TodoItems
@@ -48,7 +51,8 @@ namespace HelloApi.Controllers
             {
                 return NotFound();
             }
-            var todoItem = await _context.TodoItems.FindAsync(id);
+            //var todoItem = await _context.TodoItems.FindAsync(id);
+            var todoItem = await _todoService.GetByIdAsync(id);
 
             if (todoItem == null)
             {
