@@ -12,11 +12,11 @@ namespace HelloApi.Repository
 
         public GenericRepository(TodoContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _table = context.Set<T>();
         }
 
-        public async Task<T?> GetByIdAsync(int id) => await _table.FindAsync(id);
+        public async Task<T?> GetByIdAsync(long id) => await _table.FindAsync(id);
         public async Task<IEnumerable<T>> GetAllAsync() => await _table.ToListAsync();
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression) => await _table.Where(expression).ToListAsync();
 
