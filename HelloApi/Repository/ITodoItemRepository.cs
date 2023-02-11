@@ -3,7 +3,7 @@ using HelloApi.Models;
 
 namespace HelloApi.Repository
 {
-	public interface ITodoRepository : IDisposable
+	public interface ITodoItemRepository : IDisposable
 	{
         Task<IEnumerable<TodoItem>> GetAllAsync();
 
