@@ -15,4 +15,3 @@ namespace HelloApi.Repository
         void RemoveRange(IEnumerable<T> entities);
     }
 }
-

@@ -17,19 +17,13 @@ namespace HelloApi.Repository
         }
 
         public async Task<T?> GetByIdAsync(int id) => await _table.FindAsync(id);
-
         public async Task<IEnumerable<T>> GetAllAsync() => await _table.ToListAsync();
-
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression) => await _table.Where(expression).ToListAsync();
 
         public void Add(T entity) => _table.Add(entity);
-
         public void AddRange(IEnumerable<T> entities) => _table.AddRange(entities);
-
         public void Update(T entity) => _table.Update(entity);
-        
         public void Remove(T entity) => _table.Remove(entity);
-        
         public void RemoveRange(IEnumerable<T> entities) => _table.RemoveRange(entities);
     }
 }
