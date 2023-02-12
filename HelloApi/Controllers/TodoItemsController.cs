@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelloApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using HelloApi.Repository;
+using NuGet.Protocol.Core.Types;
 
 namespace HelloApi.Controllers
 {
@@ -18,119 +14,108 @@ namespace HelloApi.Controllers
     [Authorize]
     public class TodoItemsController : ControllerBase
     {
-        private readonly TodoContext _context;
         private readonly ILogger _logger;
-        private readonly ITodoRepository _todoService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TodoItemsController(TodoContext context, ITodoRepository todoService, ILogger<TodoItem> logger)
+        public TodoItemsController(IUnitOfWork unitOfWork, ILogger<TodoItem> logger)
         {
-            _context = context;
             _logger = logger;
-            _todoService = todoService;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/TodoItems
-        //[HttpGet, Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-            _logger.LogInformation("GetTodoItems called 4");
-            _logger.LogWarning("Testing Warning 4");
-            if (_context.TodoItems == null)
+            var todoList = await _unitOfWork.Todo.GetAllTodoItemsAsync();
+
+            if (todoList == null)
             {
                 return NotFound();
             }
-            return await _context.TodoItems.ToListAsync();
+                
+            return Ok(todoList);
         }
 
         // GET: api/TodoItems/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetTodoItem")]
         public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
         {
-            if (_context.TodoItems == null)
-            {
-                return NotFound();
-            }
-            //var todoItem = await _context.TodoItems.FindAsync(id);
-            var todoItem = await _todoService.GetByIdAsync(id);
-
+            var todoItem = await _unitOfWork.Todo.GetTodoItemByIdAsync(id);
+           
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            return todoItem;
+            return Ok(todoItem);
         }
 
         // PUT: api/TodoItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
+        public async Task<IActionResult> PutTodoItem(long id, [FromBody]TodoItem todoItem)
         {
+            if (todoItem == null)
+            {
+                return BadRequest("todoItem object is null");
+            }
+
             if (id != todoItem.Id)
             {
-                return BadRequest();
+                return BadRequest("todoItem Id in query string do not match id in body");
             }
 
-            _context.Entry(todoItem).State = EntityState.Modified;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid model object");
+            }
 
-            try
+            var todoItemFound = await _unitOfWork.Todo.GetTodoItemByIdAsync(id);
+            if (todoItemFound == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TodoItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+
+            _unitOfWork.Todo.Update(todoItem);
+            await _unitOfWork.SaveAsync();
 
             return NoContent();
         }
 
         // POST: api/TodoItems
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            if (_context.TodoItems == null)
+            if (todoItem == null)
             {
-                return Problem("Entity set 'TodoContext.TodoItems'  is null.");
+                return BadRequest("TodoItem object is null");
             }
-            _context.TodoItems.Add(todoItem);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid TodoItem object");
+            }
 
-            return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
+            _unitOfWork.Todo.AddTodoItem(todoItem);
+            await _unitOfWork.SaveAsync();
+
+            return CreatedAtRoute("GetTodoItem", new { todoItem.Id }, todoItem);
         }
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoItem(long id)
         {
-            if (_context.TodoItems == null)
-            {
-                return NotFound();
-            }
-            var todoItem = await _context.TodoItems.FindAsync(id);
+            var todoItem = await _unitOfWork.Todo.GetTodoItemByIdAsync(id);
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Todo.RemoveTodoItem(todoItem);
+            await _unitOfWork.SaveAsync();
 
             return NoContent();
         }
 
-        private bool TodoItemExists(long id)
-        {
-            return (_context.TodoItems?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
     }
 }

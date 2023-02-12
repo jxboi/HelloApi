@@ -30,9 +30,8 @@ builder.Services.AddSwaggerGen();
 
 // Register repositories
 builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-builder.Services.AddTransient<ITodoRepository, TodoItemRepository>();
-
+builder.Services.AddTransient<ITodoItemRepository, TodoItemRepository>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 // Add JWT authentication
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
