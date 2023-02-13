@@ -6,12 +6,19 @@ using Microsoft.Data.SqlClient;
 using System.Configuration;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using HelloApi.Repository;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Override default Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
+
+// HTTP Logging options
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.ResponseStatusCode;
+});
 
 // Retrieve database connection password from Azure Key Vault secret
 var client = new SecretClient(new Uri("https://mykeyvalue2023.vault.azure.net/"), new DefaultAzureCredential());
@@ -54,6 +61,9 @@ string appInsightsConnStr = secretAppInsightsConnStr.Value;
 builder.Services.AddApplicationInsightsTelemetry(opt => opt.ConnectionString = appInsightsConnStr);
 
 var app = builder.Build();
+
+// Enable HTTP logging
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
