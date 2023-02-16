@@ -4,6 +4,7 @@ using HelloApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using HelloApi.Repository;
 using NuGet.Protocol.Core.Types;
+using FluentValidation.Results;
 
 namespace HelloApi.Controllers
 {
@@ -52,7 +53,7 @@ namespace HelloApi.Controllers
 
         // PUT: api/TodoItems/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoItem(long id, [FromBody]TodoItem todoItem)
+        public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
         {
             if (todoItem == null)
             {
@@ -64,9 +65,12 @@ namespace HelloApi.Controllers
                 return BadRequest("todoItem Id in query string do not match id in body");
             }
 
-            if (!ModelState.IsValid)
+            TodoItemValidator validator = new TodoItemValidator();
+            ValidationResult result = validator.Validate(todoItem);
+
+            if (!result.IsValid)
             {
-                return BadRequest("Invalid model object");
+                return BadRequest("Invalid todoItem object");
             }
 
             var todoItemFound = await _unitOfWork.Todo.GetTodoItemByIdAsync(id);

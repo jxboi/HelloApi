@@ -7,6 +7,7 @@ using System.Configuration;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using HelloApi.Repository;
 using Microsoft.AspNetCore.HttpLogging;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddTransient<ITodoItemRepository, TodoItemRepository>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+// Register Validation
+builder.Services.AddScoped<IValidator<TodoItem>, TodoItemValidator>();
 
 // Add JWT authentication
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
