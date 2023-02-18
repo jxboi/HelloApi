@@ -22,7 +22,7 @@ builder.Services.AddHttpLogging(logging =>
 });
 
 // Retrieve database connection password from Azure Key Vault secret
-var client = new SecretClient(new Uri("https://mykeyvalue2023.vault.azure.net/"), new DefaultAzureCredential());
+var client = new SecretClient(new Uri("https://mykeyvalue2023.vault.azure.net/"), new AzureCliCredential());
 KeyVaultSecret secretDbConnStr = await client.GetSecretAsync("MyDatabaseConnectionString");
 string dbConnStr = secretDbConnStr.Value;
 
