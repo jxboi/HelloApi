@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using HelloApi.Repository;
 using Microsoft.AspNetCore.HttpLogging;
 using FluentValidation;
+using System.Globalization;
+using HelloApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,9 +80,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Middleware
+app.UseRequestCulture();
+
 app.UseAuthorization();
 
 app.MapControllers();
 
+app.Run(async (context) =>
+{
+    await context.Response.WriteAsync(
+        $"CurrentCulture.DisplayName: {CultureInfo.CurrentCulture.DisplayName}");
+});
+
 app.Run();
+
+
 
