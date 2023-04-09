@@ -33,7 +33,7 @@ namespace HelloApi.Controllers
             {
                 return NotFound();
             }
-                
+
             return Ok(todoList);
         }
 
@@ -42,7 +42,7 @@ namespace HelloApi.Controllers
         public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
         {
             var todoItem = await _unitOfWork.Todo.GetTodoItemByIdAsync(id);
-           
+
             if (todoItem == null)
             {
                 return NotFound();
@@ -89,13 +89,9 @@ namespace HelloApi.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            if (todoItem == null)
+            if (todoItem == null || !ModelState.IsValid)
             {
-                return BadRequest("TodoItem object is null");
-            }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid TodoItem object");
+                return BadRequest("TodoItem object is null or Invalid TodoItem object");
             }
 
             _unitOfWork.Todo.AddTodoItem(todoItem);
