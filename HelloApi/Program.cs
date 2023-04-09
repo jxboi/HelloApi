@@ -87,11 +87,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run(async (context) =>
-{
-    await context.Response.WriteAsync(
-        $"CurrentCulture.DisplayName: {CultureInfo.CurrentCulture.DisplayName}");
-});
+//app.Run(async (context) =>
+//{
+//    await context.Response.WriteAsync(
+//        $"CurrentCulture.DisplayName: {CultureInfo.CurrentCulture.DisplayName}");
+//});
 
 app.Run();
 
